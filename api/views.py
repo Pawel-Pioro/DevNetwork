@@ -28,7 +28,9 @@ def register(request):
     if serialized.is_valid():
         user = serialized.create(serialized.validated_data)
         if user:
-            return Response(serialized.data, status=status.HTTP_201_CREATED)
+            tokens = RefreshToken.for_user(user)
+            return Response({"message": "Created account successfully for " + user.username,
+                         "tokens": {"refresh": str(tokens), "access": str(tokens.access_token)}}, status=status.HTTP_201_CREATED)
     return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -4,6 +4,7 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import Layout from './Layout.jsx'
 import Login from './Auth/Login.jsx'
 import Logout from './Auth/Logout.jsx'
+import Register from './Auth/Register.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -12,6 +13,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/" element={<Layout />}>
           <Route path="login" element={<Login />} />
           <Route path="logout" element={<Logout />} />
+          <Route path="register" element={<Register />} />
         </Route>
       </Routes>
     </BrowserRouter>
