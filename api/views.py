@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, permissions
 from django.contrib.auth import login, logout, get_user_model   
+from rest_framework_simplejwt.tokens import RefreshToken
 
 import json
 
@@ -38,15 +39,16 @@ def loginView(request):
     serializer = UserLoginSerializer(data=data)
     if serializer.is_valid(raise_exception=True):
         user = serializer.validate(data)
-        login(request._request, user=user)
-        return Response({"username": user.username,
-                         "email": user.email}, 
+        tokens = RefreshToken.for_user(user)
+        #login(request._request, user=user)
+        return Response({"message": "Logged in successfully",
+                         "tokens": {"refresh": str(tokens), "access": str(tokens.access_token)}}, 
                          status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated,])
 def logoutView(request):
     logout(request)
@@ -54,9 +56,8 @@ def logoutView(request):
 
 
 @api_view(['GET'])
-@permission_classes([permissions.AllowAny,])
+@permission_classes([IsAuthenticated,])
 def userView(request):
-    print(request.session)
-    #serializer = UserSerializer(request.user)
-    #return Response({"user": serializer.data}, status=status.HTTP_200_OK)
-    return Response({"is logged in": request.user.is_authenticated}, status=status.HTTP_200_OK)
+    
+    return Response({"username": request.user.username,
+                     "email": request.user.email}, status=status.HTTP_200_OK)
