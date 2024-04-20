@@ -20,6 +20,7 @@ function LoginForm() {
         username: "",
         password: "",
     });
+    const [error, setError] = useState("");
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -28,52 +29,58 @@ function LoginForm() {
                 setTokens({
                     access: res.data.tokens.access,
                     refresh: res.data.tokens.refresh,
-                });
+                })
                 localStorage.setItem("access", res.data.tokens.access);
                 localStorage.setItem("refresh", res.data.tokens.refresh);
 
                 navigate("/")
-            });
+            }).catch((err) => {
+                setError(err.response.data["non_field_errors"][0])
+            })
         }
     };
     return (
-        <div className="container" style={{ maxWidth: "500px" }}>
-            <h1 className="text-center">Sign In</h1>
-            <form className="mt-4">
-                <div className="mb-3">
-                    <label for="username" className="form-label">Username</label>
+        <>
+            {error && <div className="alert alert-danger" role="alert">{error}</div>}
+            <div className="container" style={{ maxWidth: "500px" }}>
+
+                <h1 className="text-center">Sign In</h1>
+                <form className="mt-4">
+                    <div className="mb-3">
+                        <label className="form-label">Username</label>
+                        <input
+                            type="text"
+                            id="username"
+                            className="form-control"
+                            value={credentialInputs.username}
+                            onChange={(e) =>
+                                setCredentialInputs({
+                                    ...credentialInputs,
+                                    username: e.target.value,
+                                })
+                            }
+                        />
+                    </div>
+
+                    <label className="form-label">Password</label>
                     <input
-                        type="text"
-                        id="username"
+                        type="password"
+                        id="password"
                         className="form-control"
-                        value={credentialInputs.username}
+                        value={credentialInputs.password}
                         onChange={(e) =>
                             setCredentialInputs({
                                 ...credentialInputs,
-                                username: e.target.value,
+                                password: e.target.value,
                             })
                         }
                     />
-                </div>
-
-                <label for="password" className="form-label">Password</label>
-                <input
-                    type="password"
-                    id="password"
-                    className="form-control"
-                    value={credentialInputs.password}
-                    onChange={(e) =>
-                        setCredentialInputs({
-                            ...credentialInputs,
-                            password: e.target.value,
-                        })
-                    }
-                />
-                <div className="text-center">
-                    <button onClick={handleSubmit} className="btn btn-primary mt-3">Sign In</button>
-                </div>
-            </form>
-        </div>
+                    <div className="text-center">
+                        <button onClick={handleSubmit} className="btn btn-primary mt-3">Sign In</button>
+                    </div>
+                </form>
+            </div>
+        </>
     );
 }
 

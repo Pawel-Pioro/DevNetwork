@@ -16,6 +16,7 @@ export default function Register() {
     username: "",
     password: "",
   });
+  const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -28,59 +29,65 @@ export default function Register() {
       localStorage.setItem("refresh", res.data.tokens.refresh);
 
       navigate("/")
-    });
+    }).catch((err) => {
+      setError(err.response.data[Object.keys(err.response.data)[0]][0])
+    })
+
   };
 
   return (
-    <div className="container" style={{ maxWidth: "500px" }}>
+    <>
+      {error && <div className="alert alert-danger" role="alert">{error}</div>}
+      <div className="container" style={{ maxWidth: "500px" }}>
 
-      <h1 className="text-center">Create Account</h1>
-      <form className="mt-4">
-        <div className="mb-3">
-          <label for="email" className="form-label">Email</label>
-          <input
-            type="text"
-            id="email"
-            className="form-control"
-            value={credentialInputs.email}
-            onChange={(e) =>
-              setCredentialInputs({
-                ...credentialInputs,
-                email: e.target.value,
-              })
-            }
-          />
-          <label for="username" className="form-label">Username</label>
-          <input
-            type="text"
-            id="username"
-            className="form-control"
-            value={credentialInputs.username}
-            onChange={(e) =>
-              setCredentialInputs({
-                ...credentialInputs,
-                username: e.target.value,
-              })
-            }
-          />
-          <label for="password" className="form-label">Password</label>
-          <input
-            type="password"
-            id="password"
-            className="form-control"
-            value={credentialInputs.password}
-            onChange={(e) =>
-              setCredentialInputs({
-                ...credentialInputs,
-                password: e.target.value,
-              })
-            }
-          />
-          <div className="text-center">
-            <button onClick={handleSubmit} className="btn btn-primary mt-3">Join the Community</button>
+        <h1 className="text-center">Create Account</h1>
+        <form className="mt-4">
+          <div className="mb-3">
+            <label className="form-label">Email</label>
+            <input
+              type="text"
+              id="email"
+              className="form-control"
+              value={credentialInputs.email}
+              onChange={(e) =>
+                setCredentialInputs({
+                  ...credentialInputs,
+                  email: e.target.value,
+                })
+              }
+            />
+            <label className="form-label">Username</label>
+            <input
+              type="text"
+              id="username"
+              className="form-control"
+              value={credentialInputs.username}
+              onChange={(e) =>
+                setCredentialInputs({
+                  ...credentialInputs,
+                  username: e.target.value,
+                })
+              }
+            />
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              id="password"
+              className="form-control"
+              value={credentialInputs.password}
+              onChange={(e) =>
+                setCredentialInputs({
+                  ...credentialInputs,
+                  password: e.target.value,
+                })
+              }
+            />
+            <div className="text-center">
+              <button onClick={handleSubmit} className="btn btn-primary mt-3">Join the Community</button>
+            </div>
           </div>
-        </div>
-      </form >
-    </div >
+        </form >
+      </div >
+    </>
   );
 }
