@@ -15,6 +15,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                                         password=validated_data["password"],
                                         username=validated_data["username"])
         user.save()
+        user = authenticate(username=validated_data["username"], password=validated_data['password'])
         return user
     
 class UserLoginSerializer(serializers.Serializer):

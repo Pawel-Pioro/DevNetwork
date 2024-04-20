@@ -1,39 +1,44 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useOutletContext, useNavigate } from "react-router-dom";
 
-const baseURL = 'http://127.0.0.1:8000/api/'
+const baseURL = "http://127.0.0.1:8000/api/";
 
 const client = axios.create({
-    baseURL
-  })
+  baseURL,
+});
 
 export default function Logout() {
-    const [tokens, setTokens] = useState({access: '', refresh: ''})
+  const navigate = useNavigate();
+  const [tokens, setTokens] = useOutletContext()
 
-    useEffect(() => {
-        localStorage.getItem('access') && setTokens({access: localStorage.getItem('access'), refresh: localStorage.getItem('refresh')})
-    },[])
+  const logoutFunc = () => {
+    client
+      .get("logout/", {
+        headers: {
+          Authorization: `Bearer ${tokens.access}`,
+        },
+      })
+      .then((res) => {
+        setTokens({ access: "", refresh: "" });
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
 
-    const logoutFunc = () => {
-        console.log(tokens)
-        client.get('logout/', {
-            headers: {
-                Authorization: `Bearer ${tokens.access}`
-            }
-        })
-        .then((res) => {
-            setTokens({access: '', refresh: ''})
-            localStorage.removeItem('access')
-            localStorage.removeItem('refresh')
-        })
-        .catch((err) => {
-            console.log(err)
-        })
-    }
+        navigate("/login")
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
-    return(
-        <div>
-            <button onClick={() => logoutFunc()}>Logout</button>
-        </div>
-    )
+  return (
+    <div className="container mt-5" style={{ maxWidth: "700px" }} >
+      <div className="alert alert-danger text-center" role="alert" style={{ fontSize: "20px" }}>
+        Are you sure you want to logout?
+      </div>
+      <div className="text-center">
+        <button onClick={() => logoutFunc()} className="btn btn-danger" style={{ fontSize: "20px" }}>Logout</button>
+      </div>
+    </div >
+  );
 }
