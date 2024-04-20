@@ -32,7 +32,6 @@ function LoginForm() {
                 })
                 localStorage.setItem("access", res.data.tokens.access);
                 localStorage.setItem("refresh", res.data.tokens.refresh);
-
                 navigate("/")
             }).catch((err) => {
                 setError(err.response.data["non_field_errors"][0])

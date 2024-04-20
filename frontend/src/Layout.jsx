@@ -28,6 +28,14 @@ function Layout() {
             }).then((res) => {
                 setUser(res.data)
             })
+                .catch((err) => {
+                    client.post('token/refresh/', {
+                        refresh: tokens.refresh
+                    }).then((res) => {
+                        setTokens({ access: res.data.access, refresh: tokens.refresh })
+                        localStorage.setItem('access', res.data.access)
+                    })
+                })
         }
     }, [tokens])
 
