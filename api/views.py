@@ -80,6 +80,7 @@ def profile(request, username):
                      "email": user.email, 
                      "bio": profile.bio,
                      "experience": profile.experience,
+                     "github": profile.github,
                      "skills": [skill.name for skill in profile.skills.all()],}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -97,6 +98,7 @@ def updateProfile(request):
     profile = Profile.objects.get(user=request.user)
     profile.bio = request.data['bio']
     profile.experience = request.data['experience']
+    profile.github = request.data['github']
 
     profile.skills.clear()
     for skill in request.data['skills']:

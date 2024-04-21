@@ -21,7 +21,7 @@ export default function Profile() {
     useEffect(() => {
         client.get(`profile/${username}/`).then((res) => {
             setProfile(res.data)
-            setProfileInput({ "bio": res.data.bio, "experience": res.data.experience })
+            setProfileInput({ "bio": res.data.bio, "experience": res.data.experience, "github": res.data.github })
         }).catch((err) => {
             console.log(err);
         })
@@ -60,7 +60,8 @@ export default function Profile() {
             {
                 bio: profileInput.bio,
                 experience: profileInput.experience,
-                skills: profile.skills
+                skills: profile.skills,
+                github: profileInput.github
             },
             {
                 headers: {
@@ -89,7 +90,8 @@ export default function Profile() {
                 {
                     skills: newSkillArray,
                     bio: profileInput.bio,
-                    experience: profileInput.experience
+                    experience: profileInput.experience,
+                    github: profileInput.github
                 },
                 {
                     headers: {
@@ -112,7 +114,8 @@ export default function Profile() {
                 {
                     skills: newSkillArray,
                     bio: profileInput.bio,
-                    experience: profileInput.experience
+                    experience: profileInput.experience,
+                    github: profileInput.github
                 },
                 {
                     headers: {
@@ -143,6 +146,24 @@ export default function Profile() {
                 </div>
                 <div className="alert alert-secondary" role="alert" style={{ fontSize: "20px" }}>
                     Email: {profile.email}
+                    {ownerProfile ?
+                        <>
+                            <br />
+                            Github:
+                            <input type="text" className="form-control" value={profileInput.github} onChange={(e) => setProfileInput({ ...profileInput, "github": e.target.value })}></input>
+                        </>
+                        :
+                        <>
+                            {profile.github &&
+                                <>
+                                    <br />
+                                    Github:
+                                    <a href={profile.github}>{profile.github}</a>
+                                </>
+                            }
+
+                        </>
+                    }
                     <br />
                     Bio:
                     {ownerProfile ?

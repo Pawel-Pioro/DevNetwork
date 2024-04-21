@@ -16,6 +16,7 @@ class Profile(models.Model):
     bio = models.TextField(max_length=500, blank=True)
     skills = models.ManyToManyField(Skill, blank=True)
     experience = models.TextField(max_length=50, default="Beginner")
+    github = models.URLField(blank=True)
 
     def __str__(self):
         return self.user.username
