@@ -55,6 +55,10 @@ function Layout() {
                                 <Link className="nav-link active" aria-current="page" to="/">Home</Link>
                             </li>
                         </ul>
+                        <form className="d-flex" role="search" action="/search">
+                            <input className="form-control me-2" type="search" placeholder="Find Developer" aria-label="Search" name="q"></input>
+                            <button className="btn btn-outline-success" type="submit">Find</button>
+                        </form>
                         <ul className="nav navbar-nav navbar-right">
                             {tokens.access ?
                                 <>

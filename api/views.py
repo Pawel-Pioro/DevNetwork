@@ -86,3 +86,12 @@ def updateProfile(request):
     profile.bio = request.data['bio']
     profile.save()
     return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny,])
+def searchResults(request):
+    users = User.objects.filter(username__icontains=request.GET["q"])
+    users_list = []
+    for user in users:
+        users_list.append(user.username)
+    return Response({"results": users_list}, status=status.HTTP_200_OK)
