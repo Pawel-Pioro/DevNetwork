@@ -10,6 +10,7 @@ urlpatterns = [
     path("user/", views.userView, name="user"),
     path("profile/<str:username>/", views.profile, name="profile"),
     path("update-profile/", views.updateProfile, name="update-profile"),
+    path("allSkills/", views.getSkills, name="allSkills"),
     re_path(r'^search/', views.searchResults, name="search"),
 
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),

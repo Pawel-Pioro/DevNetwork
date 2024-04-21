@@ -22,6 +22,7 @@ export default function SearchResults() {
     return (
         <>
             <h1>Search Results for "{searchParams.get("q")}"</h1>
+            <h4>Found {results.length} {results.length === 1 ? "result" : "results"}</h4>
 
             {
                 results.map((result) => {

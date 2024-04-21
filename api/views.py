@@ -12,7 +12,7 @@ import json
 
 from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, Skill
 
 # Create your views here.
 
@@ -76,14 +76,32 @@ def profile(request, username):
         return Response(status=status.HTTP_404_NOT_FOUND)
     profile = Profile.objects.get(user=user)
 
-    return Response({"username": user.username, "email": user.email, "bio": profile.bio}, status=status.HTTP_200_OK)
+    return Response({"username": user.username, 
+                     "email": user.email, 
+                     "bio": profile.bio,
+                     "skills": [skill.name for skill in profile.skills.all()],}, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny,])
+def getSkills(request):
+    res = []
+    skills = Skill.objects.all()
+    for skill in skills:
+        res.append(skill.name)
+    return Response({"skills": res}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated,])
 def updateProfile(request):
     profile = Profile.objects.get(user=request.user)
     profile.bio = request.data['bio']
+
+    print(request.data['skills'])
+
+    profile.skills.clear()
+    for skill in request.data['skills']:
+        profile.skills.add(Skill.objects.get(name=skill))
+
     profile.save()
     return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
 
