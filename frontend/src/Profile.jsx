@@ -21,7 +21,7 @@ export default function Profile() {
     useEffect(() => {
         client.get(`profile/${username}/`).then((res) => {
             setProfile(res.data)
-            setProfileInput({ "bio": res.data.bio })
+            setProfileInput({ "bio": res.data.bio, "experience": res.data.experience })
         }).catch((err) => {
             console.log(err);
         })
@@ -59,6 +59,7 @@ export default function Profile() {
         client.post("update-profile/",
             {
                 bio: profileInput.bio,
+                experience: profileInput.experience,
                 skills: profile.skills
             },
             {
@@ -86,8 +87,9 @@ export default function Profile() {
 
             client.post("update-profile/",
                 {
+                    skills: newSkillArray,
                     bio: profileInput.bio,
-                    skills: newSkillArray
+                    experience: profileInput.experience
                 },
                 {
                     headers: {
@@ -108,8 +110,9 @@ export default function Profile() {
             const newSkillArray = [...profile.skills, skill]
             client.post("update-profile/",
                 {
+                    skills: newSkillArray,
                     bio: profileInput.bio,
-                    skills: newSkillArray
+                    experience: profileInput.experience
                 },
                 {
                     headers: {
@@ -140,31 +143,53 @@ export default function Profile() {
                 </div>
                 <div className="alert alert-secondary" role="alert" style={{ fontSize: "20px" }}>
                     Email: {profile.email}
-                    <br></br>
+                    <br />
                     Bio:
                     {ownerProfile ?
                         <>
                             <input type="text" className="form-control" value={profileInput.bio} onChange={(e) => setProfileInput({ ...profileInput, "bio": e.target.value })}></input>
-
-                            <button className="btn btn-primary mt-1" onClick={handleSubmit}>Save</button>
-
                         </>
                         :
                         <>
-                            {profileInput.bio}
+                            {profile.bio ? profile.bio : "(No bio)"}
+                        </>
+                    }
+                    <br />
+                    Experience:
+                    {ownerProfile ?
+                        <>
+                            <select className="form-select" value={profileInput.experience} onChange={(e) => setProfileInput({ ...profileInput, experience: e.target.value })}>
+                                <option value="Beginner">Beginner</option>
+                                <option value="Amateur">Amateur</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                                <option value="Expert">Expert</option>
+                            </select>
+                        </>
+                        :
+                        <>
+                            {profileInput.experience}
                         </>
                     }
                     <br />
                     Skills:
+
                     <ul className="list-group">
-                        {profile.skills && profile.skills.map((skill) => (
+
+                        {profile.skills !== undefined && profile.skills.length > 0 ? profile.skills.map((skill) => (
                             <li key={skill} className="list-group-item">{skill}
                                 {ownerProfile &&
                                     <span className="float-end button-group">
                                         <button type="button" className="btn btn-danger" onClick={() => updateSkills(skill, "remove")}>Delete</button>
                                     </span>}
                             </li>
-                        ))}
+                        ))
+                            :
+                            <>
+                                <li className="list-group-item">No skills added</li>
+                            </>
+                        }
+
                         {ownerProfile &&
                             <>
                                 <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSkill">Add Skill</button>
@@ -196,6 +221,7 @@ export default function Profile() {
                             </>
                         }
                     </ul>
+                    {ownerProfile && <button className="btn btn-primary mt-1" onClick={handleSubmit}>Save</button>}
                 </div>
             </div >
         </>

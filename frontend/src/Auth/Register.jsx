@@ -14,25 +14,30 @@ export default function Register() {
   const [credentialInputs, setCredentialInputs] = useState({
     email: "",
     username: "",
+    experience: "",
     password: "",
   });
   const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    client.post("register/", credentialInputs).then((res) => {
-      setTokens({
-        access: res.data.tokens.access,
-        refresh: res.data.tokens.refresh,
+    if (credentialInputs.email && credentialInputs.username && credentialInputs.password) {
+      client.post("register/", credentialInputs).then((res) => {
+        setTokens({
+          access: res.data.tokens.access,
+          refresh: res.data.tokens.refresh,
+        })
+        localStorage.setItem("access", res.data.tokens.access);
+        localStorage.setItem("refresh", res.data.tokens.refresh);
+
+        navigate("/")
+      }).catch((err) => {
+        setError(err.response.data[Object.keys(err.response.data)[0]][0])
       })
-      localStorage.setItem("access", res.data.tokens.access);
-      localStorage.setItem("refresh", res.data.tokens.refresh);
-
-      navigate("/")
-    }).catch((err) => {
-      setError(err.response.data[Object.keys(err.response.data)[0]][0])
-    })
-
+    }
+    else {
+      setError("All fields are required")
+    }
   };
 
   return (
@@ -69,6 +74,14 @@ export default function Register() {
                 })
               }
             />
+            <label className="form-label">What would you say is your experience?</label>
+            <select className="form-select" value={credentialInputs.experience} onChange={(e) => setCredentialInputs({ ...credentialInputs, experience: e.target.value })}>
+              <option value="Beginner">Beginner</option>
+              <option value="Amateur">Amateur</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+              <option value="Expert">Expert</option>
+            </select>
             <label className="form-label">Password</label>
             <input
               type="password"

@@ -15,6 +15,7 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     bio = models.TextField(max_length=500, blank=True)
     skills = models.ManyToManyField(Skill, blank=True)
+    experience = models.TextField(max_length=50, default="Beginner")
 
     def __str__(self):
         return self.user.username

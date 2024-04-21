@@ -29,7 +29,7 @@ def register(request):
     if serialized.is_valid():
         user = serialized.create(serialized.validated_data)
         if user:
-            profile = Profile.objects.create(user=user, bio="")
+            profile = Profile.objects.create(user=user, bio="", experience=request.data['experience'])
             profile.save()
             tokens = RefreshToken.for_user(user)
             return Response({"message": "Created account successfully for " + user.username,
@@ -79,6 +79,7 @@ def profile(request, username):
     return Response({"username": user.username, 
                      "email": user.email, 
                      "bio": profile.bio,
+                     "experience": profile.experience,
                      "skills": [skill.name for skill in profile.skills.all()],}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -95,8 +96,7 @@ def getSkills(request):
 def updateProfile(request):
     profile = Profile.objects.get(user=request.user)
     profile.bio = request.data['bio']
-
-    print(request.data['skills'])
+    profile.experience = request.data['experience']
 
     profile.skills.clear()
     for skill in request.data['skills']:
