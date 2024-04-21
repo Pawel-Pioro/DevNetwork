@@ -63,7 +63,7 @@ function Layout() {
                                             {user.username}
                                         </a>
                                         <ul className="dropdown-menu dropdown-menu-end">
-                                            <li><a className="dropdown-item" href="#">Profile</a></li>
+                                            <li><a className="dropdown-item" href={"/profile/" + user.username}>Profile</a></li>
                                             <li><Link className="dropdown-item" to="/logout">Logout</Link></li>
                                         </ul>
                                     </li>

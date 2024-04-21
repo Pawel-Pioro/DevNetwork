@@ -8,6 +8,8 @@ urlpatterns = [
     path("logout/", views.logoutView, name="logout"),
     path("register/", views.register, name="register"),
     path("user/", views.userView, name="user"),
+    path("profile/<str:username>/", views.profile, name="profile"),
+    path("update-profile/", views.updateProfile, name="update-profile"),
 
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

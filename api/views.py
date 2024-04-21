@@ -12,6 +12,7 @@ import json
 
 from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer
 from django.contrib.auth.models import User
+from .models import Profile
 
 # Create your views here.
 
@@ -28,6 +29,8 @@ def register(request):
     if serialized.is_valid():
         user = serialized.create(serialized.validated_data)
         if user:
+            profile = Profile.objects.create(user=user, bio="")
+            profile.save()
             tokens = RefreshToken.for_user(user)
             return Response({"message": "Created account successfully for " + user.username,
                          "tokens": {"refresh": str(tokens), "access": str(tokens.access_token)}}, status=status.HTTP_201_CREATED)
@@ -63,3 +66,23 @@ def userView(request):
     
     return Response({"username": request.user.username,
                      "email": request.user.email}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny,])
+def profile(request, username):
+    try:
+        user = User.objects.get(username=username)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    profile = Profile.objects.get(user=user)
+
+    return Response({"username": user.username, "email": user.email, "bio": profile.bio}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated,])
+def updateProfile(request):
+    profile = Profile.objects.get(user=request.user)
+    profile.bio = request.data['bio']
+    profile.save()
+    return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)

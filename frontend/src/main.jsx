@@ -1,10 +1,11 @@
 import React from 'react'
 import ReactDOM from "react-dom/client"
-import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Layout from './Layout.jsx'
 import Login from './Auth/Login.jsx'
 import Logout from './Auth/Logout.jsx'
 import Register from './Auth/Register.jsx'
+import Profile from './Profile.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -14,6 +15,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="login" element={<Login />} />
           <Route path="logout" element={<Logout />} />
           <Route path="register" element={<Register />} />
+          <Route path="profile/:username" element={<Profile />} />
         </Route>
       </Routes>
     </BrowserRouter>
