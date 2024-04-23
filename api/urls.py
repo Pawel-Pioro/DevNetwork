@@ -12,6 +12,8 @@ urlpatterns = [
     path("update-profile/", views.updateProfile, name="update-profile"),
     path("allSkills/", views.getSkills, name="allSkills"),
     re_path(r'^search/', views.searchResults, name="search"),
+    path("dms/<str:otherUser>/", views.returnDm, name="dms"),
+    path("openedDMs/", views.openedDms, name="openedDMs"),
 
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

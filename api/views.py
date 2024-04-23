@@ -12,7 +12,7 @@ import json
 
 from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer
 from django.contrib.auth.models import User
-from .models import Profile, Skill
+from .models import Profile, Skill, Message, openedDM
 
 # Create your views here.
 
@@ -74,6 +74,7 @@ def profile(request, username):
         user = User.objects.get(username=username)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    
     profile = Profile.objects.get(user=user)
 
     return Response({"username": user.username, 
@@ -115,3 +116,51 @@ def searchResults(request):
     for user in users:
         users_list.append(user.username)
     return Response({"results": users_list}, status=status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated,])
+def returnDm(request, otherUser):
+    if request.method == 'GET':
+        dms = []
+
+        for message in (Message.objects.filter(sender=request.user, receiver=User.objects.get(username=otherUser)) | Message.objects.filter(sender=User.objects.get(username=otherUser), receiver=request.user)).order_by('timestamp'):
+            dms.append({"sender": message.sender.username, "content": message.content, "timestamp": message.timestamp.strftime("%d/%m %H:%M")})
+
+        return Response({"dms": dms}, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        message = Message.objects.create(sender=request.user, receiver=User.objects.get(username=otherUser), content=request.data['content'])
+        message.save()
+
+        if openedDM.objects.filter(user1=request.user, user2=User.objects.get(username=otherUser)).exists():
+            openedDMObj = openedDM.objects.get(user1=request.user, user2=User.objects.get(username=otherUser))
+            openedDMObj.last_message = message.timestamp
+            openedDMObj.save()
+        elif openedDM.objects.filter(user1=User.objects.get(username=otherUser), user2=request.user).exists():
+            openedDMObj = openedDM.objects.get(user1=User.objects.get(username=otherUser), user2=request.user)
+            openedDMObj.last_message = message.timestamp
+            openedDMObj.save()
+
+        return Response({"message": "Message sent successfully"}, status=status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated,])
+def openedDms(request):
+    if request.method == 'GET':
+        openedDmsQuery = (openedDM.objects.filter(user1=request.user) | openedDM.objects.filter(user2=request.user)).order_by('-last_message')
+        users = []
+
+        for user in openedDmsQuery.all():
+            if user.user1 != request.user:
+                users.append(user.user1.username)
+            else:
+                users.append(user.user2.username)
+        
+        return Response({"users": users}, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        openedDmObj = openedDM.objects.create(user1=request.user, user2=User.objects.get(username=request.data['otherUser']))
+        openedDmObj.save()
+
+        message = Message.objects.create(sender=request.user, receiver=User.objects.get(username=request.data['otherUser']), content=request.data['content'])
+        message.save()
+        
+        return Response({"message": "DM opened successfully"}, status=status.HTTP_200_OK)

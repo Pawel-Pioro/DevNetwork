@@ -7,12 +7,14 @@ import Logout from './Auth/Logout.jsx'
 import Register from './Auth/Register.jsx'
 import Profile from './Profile.jsx'
 import SearchResults from './SearchResults.jsx'
+import Home from './Home.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
           <Route path="login" element={<Login />} />
           <Route path="logout" element={<Logout />} />
           <Route path="register" element={<Register />} />

@@ -18,7 +18,6 @@ function Layout() {
         }
     }, [])
 
-
     useEffect(() => {
         if (tokens.access) {
             client.get('user/', {
@@ -38,7 +37,6 @@ function Layout() {
                 })
         }
     }, [tokens])
-
 
     return (
         <>
@@ -91,7 +89,7 @@ function Layout() {
                 </div>
             </nav >
 
-            <Outlet context={[tokens, setTokens]} />
+            <Outlet context={[tokens, setTokens, user]} />
         </>
     )
 }

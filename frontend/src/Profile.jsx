@@ -9,7 +9,9 @@ const client = axios.create({
 });
 
 export default function Profile() {
-    const [tokens, setTokens] = useOutletContext()
+    const navigate = useNavigate();
+
+    const [tokens, setTokens, user] = useOutletContext()
     const { username } = useParams();
     const [profile, setProfile] = useState({});
     const [profileInput, setProfileInput] = useState({ "bio": "" });
@@ -17,16 +19,16 @@ export default function Profile() {
     const [ownerProfile, setOwnerProfile] = useState(false);
     const [unselectedSkills, setUnselectedSkills] = useState([]);
     const [selectedSkill, setSelectedSkill] = useState("");
+    const [dmsList, setDmsList] = useState([]);
 
     useEffect(() => {
         client.get(`profile/${username}/`).then((res) => {
             setProfile(res.data)
-            setProfileInput({ "bio": res.data.bio, "experience": res.data.experience, "github": res.data.github })
+            setProfileInput({ "bio": res.data.bio, "experience": res.data.experience, "github": res.data.github, "message": "" })
         }).catch((err) => {
             console.log(err);
         })
     }, []);
-
 
     useEffect(() => {
         if (profile.skills) {
@@ -40,20 +42,25 @@ export default function Profile() {
 
     useEffect(() => {
         if (tokens.access) {
-            client.get('user/', {
-                headers: {
-                    Authorization: `Bearer ${tokens.access}`
-                }
-            }).then((res) => {
-                if (res.data.username === username) {
-                    setOwnerProfile(true)
-                }
-            })
-                .catch((err) => {
-                    console.log(err);
-                })
+            if (user.username === username) {
+                setOwnerProfile(true)
+            }
         }
     })
+
+    useEffect(() => {
+        if (localStorage.getItem('access')) {
+            client.get("openedDMs/", {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('access')}`
+                }
+            }).then((res) => {
+                setDmsList(res.data.users)
+            }).catch((err) => {
+                console.log(err)
+            })
+        }
+    }, [])
 
     const update_profile = () => {
         client.post("update-profile/",
@@ -108,7 +115,6 @@ export default function Profile() {
             })
         }
         else if (action === "add" && skill) {
-            console.log(skill)
             const newSkillArray = [...profile.skills, skill]
             client.post("update-profile/",
                 {
@@ -134,6 +140,29 @@ export default function Profile() {
         }
     }
 
+    function messageButton() {
+
+        if (profileInput.message) {
+            client.post(`openedDMs/`,
+                {
+                    content: profileInput.message,
+                    otherUser: username
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        Authorization: `Bearer ${tokens.access}`,
+                    },
+                }
+            ).then((res) => {
+                navigate("/")
+            }).catch((err) => {
+                console.log(err);
+            })
+        }
+    }
+
     return (
         <>
             {status && <div className="alert alert-success alert-dismissible fade show" role="alert">
@@ -143,6 +172,29 @@ export default function Profile() {
             <div className="container mt-5" style={{ maxWidth: "700px" }}>
                 <div className="alert alert-primary text-center" role="alert" style={{ fontSize: "20px" }}>
                     Profile of {profile.username}
+                    {!ownerProfile && !dmsList.includes(username) && tokens.access &&
+                        <>
+                            <button className="btn btn-primary ml-5" data-bs-toggle="modal" data-bs-target="#messageModal">Message</button>
+
+                            <div className="modal fade" id="messageModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div className="modal-dialog">
+                                    <div className="modal-content">
+                                        <div className="modal-header">
+                                            <h1 className="modal-title fs-5" id="exampleModalLabel">Send first message</h1>
+                                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div className="modal-body">
+                                            <input type="text" className="form-control" value={profileInput.message || ''} onChange={(e) => setProfileInput({ ...profileInput, "message": e.target.value })} />
+                                        </div>
+                                        <div className="modal-footer">
+                                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={messageButton}>Send Message</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    }
                 </div>
                 <div className="alert alert-secondary" role="alert" style={{ fontSize: "20px" }}>
                     Email: {profile.email}
