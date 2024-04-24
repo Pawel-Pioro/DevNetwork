@@ -61,51 +61,76 @@ export default function Home() {
     }
 
     function sendMessage() {
-        client.post(`dms/${currentlyOpenedDM.user}/`, {
-            content: currentlyOpenedDM.messageInput
-        }, {
-            headers: {
-                Authorization: `Bearer ${tokens.access}`
-            }
-        }).then((res) => {
-            openDM(currentlyOpenedDM.user)
-            SetCurrentlyOpenedDM({
-                ...currentlyOpenedDM,
-                "messageInput": ""
+        if (currentlyOpenedDM.messageInput) {
+            client.post(`dms/${currentlyOpenedDM.user}/`, {
+                content: currentlyOpenedDM.messageInput
+            }, {
+                headers: {
+                    Authorization: `Bearer ${tokens.access}`
+                }
+            }).then((res) => {
+                openDM(currentlyOpenedDM.user)
+                SetCurrentlyOpenedDM({
+                    ...currentlyOpenedDM,
+                    "messageInput": ""
+                })
+            }).catch((err) => {
+                console.log(err)
             })
-        }).catch((err) => {
-            console.log(err)
-        })
+        }
     }
 
     return (
         <div>
-            <h2>Welcome, {user.username}</h2>
+            <h2 className="text-center">Welcome, {user.username}</h2>
 
-            {
-                openedDMList.length > 0 ?
-                    <div>
-                        {openedDMList.map((dm) => {
-                            return <button onClick={() => openDM(dm)} key={dm}>{dm}</button>
-                        })}
-                    </div>
-                    :
-                    <h3>No Open DMs</h3>
-            }
+            <div className="container-fluid p-0 border border-dark-subtle border-2 rounded" style={{ backgroundColor: "#e9ecef", marginLeft: "auto", marginRight: "auto", maxWidth: "800px" }} >
+                {
+                    openedDMList.length > 0 ?
+                        <div className="btn-group p-2" style={{ width: "100%", backgroundColor: "white" }} role="group" aria-label="Basic radio toggle button group">
 
-            {currentlyOpenedDM.user &&
-                <div>
-                    <p>DM with {currentlyOpenedDM.user}:</p>
-                    {currentlyOpenedDM.dms.map((dm, i) => {
+                            {openedDMList.map((dm) => {
+                                return (
+                                    <div key={dm} className="btn-group" >
+                                        <input type="radio" className="btn-check" name="btnradio" id={dm} autoComplete="off"></input>
+                                        <label className="btn btn-outline-primary" htmlFor={dm} onClick={() => openDM(dm)}>{dm}</label>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        :
+                        <h3>No DMs Found</h3>
+                }
 
-                        return <p key={i}>({dm.timestamp}) <b>{dm.sender}</b>: {dm.content}</p>
-                    })}
+                {!currentlyOpenedDM.user &&
+                    <h3 className="text-center">Open a DM to view messages</h3>
+                }
 
-                    <input type="text" value={currentlyOpenedDM.messageInput || ''} onChange={(e) => SetCurrentlyOpenedDM({ ...currentlyOpenedDM, "messageInput": e.target.value })} />
-                    <button onClick={sendMessage}>Send</button>
+                <div style={{ height: "500px", overflow: "auto", display: "flex", flexDirection: "column-reverse" }}>
+
+                    {currentlyOpenedDM.user &&
+                        <>
+                            <div className="input-group ps-3 pe-3 mb-2">
+                                <input type="text" placeholder={"Message " + currentlyOpenedDM.user} className="form-control border-dark-subtle border-2" value={currentlyOpenedDM.messageInput || ''} onChange={(e) => SetCurrentlyOpenedDM({ ...currentlyOpenedDM, "messageInput": e.target.value })} />
+                                <button onClick={sendMessage} className="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-send" viewBox="0 0 16 16">
+                                    <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z" />
+                                </svg></button>
+                            </div>
+
+                            <div className="ms-3 me-3">
+                                {currentlyOpenedDM.dms.map((dm, i) => {
+
+                                    return <p key={i}>({dm.timestamp}) <b>{dm.sender}</b>: {dm.content}</p>
+                                })}
+                            </div>
+                            <hr ></hr>
+
+                        </>
+
+                    }
                 </div>
-            }
-        </div>
+            </div>
+        </div >
     )
 
 }

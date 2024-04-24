@@ -123,7 +123,7 @@ def returnDm(request, otherUser):
     if request.method == 'GET':
         dms = []
 
-        for message in (Message.objects.filter(sender=request.user, receiver=User.objects.get(username=otherUser)) | Message.objects.filter(sender=User.objects.get(username=otherUser), receiver=request.user)).order_by('timestamp'):
+        for message in (Message.objects.filter(sender=request.user, receiver=User.objects.get(username=otherUser)) | Message.objects.filter(sender=User.objects.get(username=otherUser), receiver=request.user)).order_by('-timestamp'):
             dms.append({"sender": message.sender.username, "content": message.content, "timestamp": message.timestamp.strftime("%d/%m %H:%M")})
 
         return Response({"dms": dms}, status=status.HTTP_200_OK)
