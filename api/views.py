@@ -113,8 +113,27 @@ def updateProfile(request):
 def searchResults(request):
     users = User.objects.filter(username__icontains=request.GET["q"])
     users_list = []
+
     for user in users:
-        users_list.append(user.username)
+        profile = Profile.objects.get(user=user)
+        if request.GET.get("language") and request.GET.get("experience"):
+            if Skill.objects.get(name=request.GET["language"]) in profile.skills.all() and profile.experience == request.GET.get("experience"):
+                users_list.append({"username": user.username,
+                                    "experience": profile.experience,
+                                    "skills": [skill.name for skill in profile.skills.all()]})
+        elif request.GET.get("language") and Skill.objects.get(name=request.GET["language"]) in profile.skills.all():
+            users_list.append({"username": user.username,
+                                    "experience": profile.experience,
+                                    "skills": [skill.name for skill in profile.skills.all()]})
+        elif request.GET.get("experience") and profile.experience == request.GET.get("experience"):
+            users_list.append({"username": user.username,
+                                    "experience": profile.experience,
+                                    "skills": [skill.name for skill in profile.skills.all()]})
+        elif not request.GET.get("language") and not request.GET.get("experience"):
+            users_list.append({"username": user.username,
+                                    "experience": profile.experience,
+                                    "skills": [skill.name for skill in profile.skills.all()]})
+            
     return Response({"results": users_list}, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
@@ -123,7 +142,7 @@ def returnDm(request, otherUser):
     if request.method == 'GET':
         dms = []
 
-        for message in (Message.objects.filter(sender=request.user, receiver=User.objects.get(username=otherUser)) | Message.objects.filter(sender=User.objects.get(username=otherUser), receiver=request.user)).order_by('-timestamp'):
+        for message in (Message.objects.filter(sender=request.user, receiver=User.objects.get(username=otherUser)) | Message.objects.filter(sender=User.objects.get(username=otherUser), receiver=request.user)).order_by('timestamp'):
             dms.append({"sender": message.sender.username, "content": message.content, "timestamp": message.timestamp.strftime("%d/%m %H:%M")})
 
         return Response({"dms": dms}, status=status.HTTP_200_OK)

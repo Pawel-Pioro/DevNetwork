@@ -106,7 +106,7 @@ export default function Home() {
                     <h3 className="text-center">Open a DM to view messages</h3>
                 }
 
-                <div style={{ height: "500px", overflow: "auto", display: "flex", flexDirection: "column-reverse" }}>
+                <div style={{ height: "70vh", overflow: "auto", display: "flex", flexDirection: "column-reverse" }}>
 
                     {currentlyOpenedDM.user &&
                         <>
