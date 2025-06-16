@@ -1,5 +1,5 @@
-from django.contrib.auth import get_user_model, authenticate
-from rest_framework import serializers
+from django.contrib.auth import get_user_model, authenticate # type: ignore
+from rest_framework import serializers # type: ignore
 from .models import Message
 
 import json

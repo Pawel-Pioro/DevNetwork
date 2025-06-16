@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework.decorators import api_view
@@ -143,11 +144,12 @@ def returnDm(request, otherUser):
         dms = []
 
         for message in (Message.objects.filter(sender=request.user, receiver=User.objects.get(username=otherUser)) | Message.objects.filter(sender=User.objects.get(username=otherUser), receiver=request.user)).order_by('timestamp'):
-            dms.append({"sender": message.sender.username, "content": message.content, "timestamp": message.timestamp.strftime("%d/%m %H:%M")})
+            print(message.image)
+            dms.append({"sender": message.sender.username, "content": message.content, "timestamp": message.timestamp.strftime("%d/%m %H:%M"), "image": request.build_absolute_uri("/") + message.image.url if message.image else None})
 
         return Response({"dms": dms}, status=status.HTTP_200_OK)
     elif request.method == 'POST':
-        message = Message.objects.create(sender=request.user, receiver=User.objects.get(username=otherUser), content=request.data['content'])
+        message = Message.objects.create(sender=request.user, receiver=User.objects.get(username=otherUser), content=request.data['content'], image=request.data.get('image'))
         message.save()
 
         if openedDM.objects.filter(user1=request.user, user2=User.objects.get(username=otherUser)).exists():
